@@ -19,4 +19,4 @@ if ( !(Test-Path $env:DOTNET_HOME/dotnet.exe) -or "$(& $env:DOTNET_HOME/dotnet.e
     & $env:DOTNET_HOME/dotnet-install.ps1 -InstallDir $env:DOTNET_HOME -Version $env:DotnetCliVersion
 }
 
-& $env:DOTNET_HOME/dotnet.exe msbuild build.proj /nologo /v:m $args
+& $env:DOTNET_HOME/dotnet.exe msbuild build.xml /nologo /v:m $args

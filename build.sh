@@ -18,4 +18,4 @@ if test ! -x $DOTNET_HOME/dotnet || test "$($DOTNET_HOME/dotnet --version)" != $
         | bash -s -- -i $DOTNET_HOME --version $DotnetCliVersion
 fi
 
-$DOTNET_HOME/dotnet msbuild build.proj /nologo /v:m "$@"
+$DOTNET_HOME/dotnet msbuild build.xml /nologo /v:m "$@"

@@ -12,17 +12,19 @@
         <SourceProjects Include="src\*\*.csproj" />
         <TestProjects Include="test\*\*.csproj" />
     </ItemGroup>
-    <Target Name="Clean">
-        <RemoveDir Directories="$(ArtifactsPath);$(MSBuildThisFileDirectory)testWorkDir" />
-        <MSBuild Projects="$(SolutionFile)" Targets="Clean" />
-    </Target>
-    <Target Name="Initialize" DependsOnTargets="Clean">
+
+    <Target Name="Initialize">
         <Message Importance="High" Text="Build settings:" />
         <Message Importance="High" Text="DotnetCliVersion: $(DotnetCliVersion)" />
         <MSBuild Projects="$(SolutionFile)" Targets="Restore" />
     </Target>
 
-    <Target Name="Pack">
+    <Target Name="Clean" DependsOnTargets="Initialize">
+        <RemoveDir Directories="$(ArtifactsPath);$(MSBuildThisFileDirectory)testWorkDir" />
+        <MSBuild Projects="$(SolutionFile)" Targets="Clean" />
+    </Target>
+
+    <Target Name="Pack" DependsOnTargets="Initialize">
         <MSBuild Targets="Rebuild;Pack"
                  Projects="@(SourceProjects)"
                  Properties="PackageOutputPath=$(ArtifactsPath)" />
@@ -33,5 +35,5 @@
                  Projects="@(TestProjects)" />
     </Target>
 
-    <Target Name="Default" DependsOnTargets="Clean;Test;Pack" />
+    <Target Name="Default" DependsOnTargets="Initialize;Clean;Test;Pack" />
 </Project>
