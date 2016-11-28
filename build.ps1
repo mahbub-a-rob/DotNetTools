@@ -1,4 +1,4 @@
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference='Stop'
 
 cd $PSScriptRoot
 
@@ -19,4 +19,8 @@ if ( !(Test-Path $env:DOTNET_HOME/dotnet.exe) -or "$(& $env:DOTNET_HOME/dotnet.e
     & $env:DOTNET_HOME/dotnet-install.ps1 -InstallDir $env:DOTNET_HOME -Version $env:DotnetCliVersion
 }
 
+& $env:DOTNET_HOME/dotnet.exe restore build.xml
+if ($LASTEXITCODE -ne 0) {
+    throw 'Restoring packages for build.xml failed'
+}
 & $env:DOTNET_HOME/dotnet.exe msbuild build.xml /nologo /v:m $args
