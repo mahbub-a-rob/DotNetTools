@@ -69,9 +69,10 @@
     <!-- targets that extend/override default common targets need to come after importing common targets -->
     <Target Name="Compile">
         <MSBuild Targets="Build"
-                 Projects="@(Projects)"
+                 Projects="$(SolutionFile)"
                  Properties="$(ProjectProperties)"
-                 BuildInParallel="true" />
+                 BuildInParallel="true"
+                 />
     </Target>
 
     <Target Name="AfterClean">
