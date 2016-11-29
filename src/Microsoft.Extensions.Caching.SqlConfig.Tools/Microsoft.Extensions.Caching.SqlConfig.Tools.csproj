@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Compile Include="**\*.cs" />
+    <Compile Include="..\Shared\CommandLineApplicationExtensions.cs" />
     <None Include="$(ProjectRuntimeConfigFilePath)" Pack="true" PackagePath="lib\$(TargetFramework)" />
   </ItemGroup>
 
