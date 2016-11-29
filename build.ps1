@@ -23,4 +23,4 @@ if ( !(Test-Path $env:DOTNET_HOME/dotnet.exe) -or "$(& $env:DOTNET_HOME/dotnet.e
 if ($LASTEXITCODE -ne 0) {
     throw 'Restoring packages for build.xml failed'
 }
-& $env:DOTNET_HOME/dotnet.exe msbuild build.xml /nologo /v:m $args
+& $env:DOTNET_HOME/dotnet.exe msbuild build.xml /nologo /v:m /m $args

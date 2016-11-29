@@ -19,4 +19,4 @@ if test ! -x $DOTNET_HOME/dotnet || test "$($DOTNET_HOME/dotnet --version)" != $
 fi
 
 $DOTNET_HOME/dotnet restore build.xml
-$DOTNET_HOME/dotnet msbuild build.xml /nologo /v:m "$@"
+$DOTNET_HOME/dotnet msbuild build.xml /nologo /v:m /m "$@"

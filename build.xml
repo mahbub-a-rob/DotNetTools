@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Default">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
     <!-- TODO use common build lifecycle -->
     <Import Project="build\common.props" />
 
@@ -15,38 +16,71 @@
 
     <!-- build settings -->
     <PropertyGroup>
-        <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts\build\</ArtifactsPath>
         <SolutionFile>$(MSBuildThisFileDirectory)DotNetTools.sln</SolutionFile>
+
+        <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts\build\</ArtifactsPath>
+
+        <!-- required for Microsoft.Common.targets configuration validation -->
+        <OutputPath>$(ArtifactsPath)</OutputPath>
+
+        <Configuration Condition="'$(Configuration)'==''">Debug</Configuration>
+        <ProjectProperties>Configuration=$(Configuration)</ProjectProperties>
+        <ProjectProperties Condition="'$(Version)'!=''">$(ProjectProperties);Version=$(Version)</ProjectProperties>
     </PropertyGroup>
+
     <ItemGroup>
-        <SourceProjects Include="src\*\*.csproj" />
-        <TestProjects Include="test\*\*.csproj" />
+        <Projects Include="src\*\*.csproj" Pack="true" />
+
+        <!-- unit test projects before functional test projects-->
+        <Projects Include="test\*\*.Test*.csproj" Test="true" />
+        <Projects Include="test\*\*.csproj" Exclude="@(Projects)" Test="true" />
     </ItemGroup>
 
     <Target Name="Initialize">
         <Message Importance="High" Text="Build settings:" />
         <Message Importance="High" Text="DotnetCliVersion: $(DotnetCliVersion)" />
-        <MSBuild Projects="$(SolutionFile)" Targets="Restore" />
-    </Target>
-
-    <Target Name="Clean">
-        <RemoveDir Directories="$(ArtifactsPath);$(MSBuildThisFileDirectory)testWorkDir" />
-        <MSBuild Projects="$(SolutionFile)" Targets="Clean" />
+        <MSBuild Projects="$(SolutionFile)"
+                 Targets="Restore"
+                 Properties="$(ProjectProperties)" />
     </Target>
 
     <Target Name="Pack">
-        <MSBuild Targets="Rebuild;Pack"
-                 Projects="@(SourceProjects)"
-                 Properties="PackageOutputPath=$(ArtifactsPath)" />
+        <ItemGroup>
+            <_PackProjects Include="@(Projects)" Condition=" %(Projects.Pack) == 'true'" />
+        </ItemGroup>
+        <MSBuild Targets="Pack"
+                 Projects="@(_PackProjects)"
+                 Properties="PackageOutputPath=$(ArtifactsPath);$(ProjectProperties)"
+                 BuildInParallel="true" />
     </Target>
 
     <Target Name="Test">
+        <ItemGroup>
+            <_TestProjects Include="@(Projects)" Condition=" %(Projects.Test) == 'true'" />
+        </ItemGroup>
         <MSBuild Targets="VSTest"
-                 Projects="@(TestProjects)" />
+                 Projects="@(_TestProjects)"
+                 Properties="$(ProjectProperties)" />
     </Target>
-
-    <Target Name="Default" DependsOnTargets="Initialize;Clean;Test;Pack" />
 
     <!-- required to import the restore target -->
     <Import Project="$(MSBuildExtensionsPath)\Microsoft.Common.targets" />
+
+    <!-- targets that extend/override default common targets need to come after importing common targets -->
+    <Target Name="Compile">
+        <MSBuild Targets="Build"
+                 Projects="@(Projects)"
+                 Properties="$(ProjectProperties)"
+                 BuildInParallel="true" />
+    </Target>
+
+    <Target Name="AfterClean">
+        <RemoveDir Directories="$(ArtifactsPath);$(MSBuildThisFileDirectory)testWorkDir" />
+        <MSBuild Targets="Clean"
+                 Projects="$(SolutionFile)"
+                 Properties="$(ProjectProperties)"
+                 BuildInParallel="true" />
+    </Target>
+
+    <Target Name="Default" DependsOnTargets="Initialize;Clean;Compile;Test;Pack" />
 </Project>
