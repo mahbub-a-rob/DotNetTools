@@ -87,35 +87,20 @@ namespace Microsoft.Extensions.SecretManager.Tools.Internal
             // targets should be in one of these locations, depending on test setup and tools installation
             var searchPaths = new[]
             {
+				// next to deps.json file
                 AppContext.BaseDirectory,
-                assemblyDir, // next to assembly
-                Path.Combine(assemblyDir, "../../tools"), // inside the nupkg
+				// next to assembly
+				assemblyDir, 
+				// inside the nupkg
+                Path.Combine(assemblyDir, "../../tools"), 
+				// theoretically possible if NuGet puts deps.json is inside the nupkg
+				Path.Combine(AppContext.BaseDirectory, "../../tools"), 
             };
 
-            var foundFile = searchPaths
+            return searchPaths
                 .Select(dir => Path.Combine(dir, TargetsFileName))
                 .Where(File.Exists)
-                .FirstOrDefault();
-
-            if (foundFile != null)
-            {
-                return foundFile;
-            }
-
-            // This should only really happen during testing. Current build system doesn't give us a good way to ensure the
-            // test project has an always-up to date version of the targets file.
-            // TODO cleanup after we switch to an MSBuild system in which can specify "CopyToOutputDirectory: Always" to resolve this issue
-            var outputPath = Path.GetTempFileName();
-            using (var resource = GetType().GetTypeInfo().Assembly.GetManifestResourceStream(TargetsFileName))
-            using (var stream = new FileStream(outputPath, FileMode.Create))
-            {
-                resource.CopyTo(stream);
-            }
-
-            // cleanup
-            _tempFiles.Add(outputPath);
-
-            return outputPath;
+                .First();
         }
 
         private static void TryDelete(string file)
