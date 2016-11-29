@@ -15,11 +15,12 @@ function install_dotnet {
 
 function ensure_dotnet {
     $env:DotnetCliVersion = ($(sls 'version' $PSScriptRoot/cli.yml | select -exp line) -split ': ')[1]
-    if (Test-Path $env:DOTNET_HOME/dotnet.exe -and "$(& $env:DOTNET_HOME/dotnet.exe --version)" -eq $env:DotnetCliVersion) {
+    if ((Test-Path "$env:DOTNET_HOME/dotnet.exe") -and "$(& $env:DOTNET_HOME/dotnet.exe --version)" -eq $env:DotnetCliVersion) {
         return
     }
+
     $globalDotnet = Get-Command dotnet
-    if (Test-Path $globalDotnet.Path) {
+    if ((Test-Path $globalDotnet.Path) -and "$(& $globalDotnet.Path --version)" -eq $env:DotnetCliVersion) {
         $env:DOTNET_HOME = Split-Path $globalDotnet.Path -Parent
     } else {
         $env:DOTNET_HOME = "$PSScriptRoot/.dotnet"
@@ -38,4 +39,4 @@ Write-Host -ForegroundColor Gray "Using $env:DOTNET_HOME/dotnet.exe"
 if ($LASTEXITCODE -ne 0) {
     throw 'Restoring packages for build.xml failed'
 }
-& $env:DOTNET_HOME/dotnet.exe msbuild build.xml /nologo /v:m /m $args
+& $env:DOTNET_HOME/dotnet.exe msbuild build.xml /nologo /v:m $args

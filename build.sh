@@ -36,4 +36,4 @@ ensure_dotnet
 printf "\033[90mUsing $DOTNET_HOME/dotnet\033[0m\n"
 
 $DOTNET_HOME/dotnet restore build.xml
-$DOTNET_HOME/dotnet msbuild build.xml /nologo /v:m /m "$@"
+$DOTNET_HOME/dotnet msbuild build.xml /nologo /v:m "$@"

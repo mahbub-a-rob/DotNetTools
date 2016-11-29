@@ -50,8 +50,8 @@
         </ItemGroup>
         <MSBuild Targets="Pack"
                  Projects="@(_PackProjects)"
-                 Properties="PackageOutputPath=$(ArtifactsPath);$(ProjectProperties)"
-                 BuildInParallel="true" />
+                 Properties="PackageOutputPath=$(ArtifactsPath);$(ProjectProperties)"/>
+        <!-- TODO BuildInParallel when Microsoft.NET.Sdk fixes race conditions -->
     </Target>
 
     <Target Name="Test">
@@ -71,16 +71,16 @@
         <MSBuild Targets="Build"
                  Projects="$(SolutionFile)"
                  Properties="$(ProjectProperties)"
-                 BuildInParallel="true"
                  />
+        <!-- TODO BuildInParallel when Microsoft.NET.Sdk fixes race conditions -->
     </Target>
 
     <Target Name="AfterClean">
         <RemoveDir Directories="$(ArtifactsPath);$(MSBuildThisFileDirectory)testWorkDir" />
         <MSBuild Targets="Clean"
                  Projects="$(SolutionFile)"
-                 Properties="$(ProjectProperties)"
-                 BuildInParallel="true" />
+                 Properties="$(ProjectProperties)" />
+        <!-- TODO BuildInParallel when Microsoft.NET.Sdk fixes race conditions -->
     </Target>
 
     <Target Name="Default" DependsOnTargets="Initialize;Clean;Compile;Test;Pack" />
